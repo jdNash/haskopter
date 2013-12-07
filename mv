@@ -1,0 +1,70 @@
+module Main where
+
+import Control.Monad (unless, forever)
+import Network.Socket
+
+
+port = "5554"
+host = "127.0.1.1"
+
+main = withSocketsDo $ do
+        (serveraddr:_) <- getAddrInfo
+                                  (Just (defaultHints {addrFlags = [AI_PASSIVE]}))
+                                  Nothing (Just port)
+        sock <- socket (addrFamily serveraddr) Datagram defaultProtocol
+        bindSocket sock (addrAddress serveraddr) 
+        forever $ do
+                (msg, _,addr) <- recvFrom sock 1024
+                putStrLn $ "From " ++ show addr ++ ": " ++ msg
+                sendTo sock ("Got: " ++ msg) addr 
+        sClose sock
+        return ()
+{-
+main = withSocketsDo $ bracket connectMe sClose handler
+          where
+            connectMe = do
+              (serveraddr:_) <- getAddrInfo
+                                  (Just (defaultHints {addrFlags = [AI_PASSIVE]}))
+                                  Nothing (Just port)
+              sock <- socket (addrFamily serveraddr) Datagram defaultProtocol
+              bindSocket sock (addrAddress serveraddr) >> return sock
+
+handler :: Socket -> IO ()
+handler conn = do
+    sport <- socketPort conn
+    (msg,n,d) <- recvFrom conn 1024
+    putStrLn $ "< " ++ msg ++ "from " ++ (show sport)
+    --unless (null msg) $ sendTo conn (msg++" "++show sport) d >> handler conn
+-}
+
+
+{-module Server(main) where
+
+import Network
+import System.IO 
+import Control.Concurrent
+
+main :: IO ()
+main = withSocketsDo $ -- For Windows compat
+    do 
+        theSocket <- listenOn (PortNumber 5556)
+        sequence_ $ repeat $ acceptConnectionAndFork theSocket
+            where
+                acceptConnectionAndFork :: Socket -> IO ()
+                acceptConnectionAndFork theSocket = do
+                    connection <- accept theSocket
+                    let (handle, hostname, portnumber) = connection
+                    putStr ("("++hostname ++ ":" ++ (show portnumber)
+                        ++ "): Open\n" )
+                    forkIO (echoServer connection)
+                    return ()
+
+echoServer :: (Handle, String, PortNumber) -> IO ()
+echoServer (handle, hostname, portnumber) = do
+    a <- hGetContents handle 
+    putStr $ foldr (++) "" $ map (\a -> "(" ++ hostname ++ ":"
+        ++ (show portnumber) ++ "): Msg "++ (show a) ++ "\n") $ lines a
+    putStr ("(" ++ hostname ++ ":" ++ (show portnumber)
+        ++ "): Close\n")
+
+-}
