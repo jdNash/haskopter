@@ -6,15 +6,28 @@ import Control.Monad (forever, liftM)
 import Control.Monad.Loops (whileM_)
 
 port = 5556
+navport = 5554
 host = "192.168.1.1"
+
+{-
+
+Todo
+Bind two ports, control and data
+send 1 byte, send empty pac
+continue sending
+send two true commands to true data
+
+
+
+-}
 
 main = withSocketsDo $ do
         s <- socket AF_INET Datagram defaultProtocol
         hostAddr <- inet_addr host
+        --bindAddr <- inet_addr "127.0.0.1"
+        --bindSocket s (SockAddrInet 5556 bindAddr)
         sendTo s "AT*CONFIG=1,\"control:altitude_max\",\"2000\"" (SockAddrInet port hostAddr)
         sendTo s "AT*CONFIG=1,\"control:altitude_max\",\"2000\"" (SockAddrInet port hostAddr)  
-        sendTo s "AT*REF=101,290718208\r" (SockAddrInet port hostAddr) 
-        sendTo s "AT*REF=101,290718208\r" (SockAddrInet port hostAddr) 
         forever $ do
                 msg <- getLine
                 case msg of 
