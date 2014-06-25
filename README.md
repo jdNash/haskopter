@@ -1,2 +1,3 @@
 AR Drone 2.0 Haskell Library.
-Currently features correct UDP communication for sending commands and receiving navdata. Future work on the library will hopefully provide for tasteful composition of command functions to control copter movement, and utilities for working with navdata. 
+NOTE
+This is not the complete library and is infact a collection of poorly hacked together notes and trials. The complete library is currently in stealth mode for various reasons and will be released on Hackage when possible. 
